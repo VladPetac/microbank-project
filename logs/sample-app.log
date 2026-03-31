@@ -1,0 +1,10 @@
+2024-03-28 10:00:01 INFO  AccountService started on port 8080
+2024-03-28 10:00:02 INFO  Connected to database postgres:5432
+2024-03-28 10:01:15 WARN  Slow query detected: 2340ms
+2024-03-28 10:02:30 ERROR Connection refused to transaction-service:8081
+2024-03-28 10:02:31 ERROR Retry attempt 1 failed
+2024-03-28 10:02:35 INFO  Retry attempt 2 succeeded
+2024-03-28 10:05:00 INFO  Health check passed
+2024-03-28 10:10:00 WARN  Memory usage above 80%
+2024-03-28 10:15:00 ERROR OutOfMemoryError: Java heap space
+2024-03-28 10:15:01 ERROR Service crashed, initiating restart

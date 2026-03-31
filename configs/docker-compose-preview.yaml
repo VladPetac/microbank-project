@@ -1,0 +1,31 @@
+---
+# configs/docker-compose-preview.yaml
+# This is a preview of what you'll build in Phase 5
+# Study the structure - notice how YAML nests services, ports, volumes
+
+version: "3.8"              # Docker Compose file version
+
+services:                   # Define each container
+  postgres:                 # Service name
+    image: postgres:15      # Docker image to use
+    environment:            # Environment variables
+      POSTGRES_DB: microbank_db
+      POSTGRES_USER: microbank_user
+      POSTGRES_PASSWORD: changeme123
+    ports:
+      - "5432:5432"         # host_port:container_port
+    volumes:
+      - db_data:/var/lib/postgresql/data      # Persistent storage
+
+  account-service:
+    image: microbank/account-service:1.0
+    environment:
+      DB_HOST: postgres     # Uses Docker service name as hostname
+      DB_PORT: 5432
+    ports:
+      - "8080:8080"
+    depends_on:             # Start order
+      - postgres
+
+volumes:                    # Named values
+  db_data:                  # Will persist even if container is deleted

@@ -1,0 +1,10 @@
+# MicroBank Configuration - dev environment
+# Generated on: 2026-03-31 14:50:53
+
+environment: dev
+debug_mode: true
+
+database:
+  host: postgres-dev
+  port: 5432
+  name: microbank_dev

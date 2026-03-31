@@ -1,0 +1,44 @@
+---
+# configs/microbank-config.yaml
+# This is a YAML configuration file for MicroBank
+# Comments start with #
+
+# Simple key-value pairs (like "variable = value")
+
+app_name: Microbank
+version: "1.0.0"  # Quotes are optional for strings, but required for versions
+debug_mode: false  # Boolean values: true/false (no quotes!)
+
+# A list (array) - each item starts with a dash
+environments:
+  - dev
+  - sit
+  - uat
+  - prod
+
+# A nested structure (dictionary inside dictionary)
+database:
+  host: localhost
+  port: 5432  # Numbers don't need quotes
+  name: microbank_db
+  credentials:
+    username: microbank_user
+    password: changeme123  # In real life, NEVER put passwords in config files!
+
+# Services configuration
+services:
+  account_service:
+    port: 8080
+    replicas: 2
+    health_check: /actuator/health
+
+  transaction_service:
+    port: 8081
+    replicas: 2
+    health_check: /actuator/health
+
+# Multi-line string (the | preserves line breaks)
+description: |
+  MicroBank is a simplified banking application
+  used for DevOps learning purposes.
+  It consists of two microservices and a PostgreSQL database.

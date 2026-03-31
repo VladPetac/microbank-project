@@ -1,0 +1,10 @@
+# MicroBank Configuration - uat environment
+# Generated on: 2026-03-31 14:50:53
+
+environment: uat
+debug_mode: false
+
+database:
+  host: postgres-uat
+  port: 5432
+  name: microbank_uat

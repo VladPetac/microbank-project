@@ -1,0 +1,10 @@
+# MicroBank Configuration - prod environment
+# Generated on: 2026-03-31 14:50:53
+
+environment: prod
+debug_mode: false
+
+database:
+  host: postgres-prod
+  port: 5432
+  name: microbank_prod

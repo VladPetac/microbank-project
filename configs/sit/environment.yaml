@@ -1,0 +1,10 @@
+# MicroBank Configuration - sit environment
+# Generated on: 2026-03-31 14:50:53
+
+environment: sit
+debug_mode: false
+
+database:
+  host: postgres-sit
+  port: 5432
+  name: microbank_sit

@@ -1,0 +1,23 @@
+{
+  "application": "MicroBank",
+  "environment": "dev",
+  "services": [
+    {
+      "name": "account-service",
+      "status": "running",
+      "port": 8080,
+      "version": "1.0.0"
+    },
+    {
+      "name": "transaction-service",
+      "status": "running",
+      "port": 8081,
+      "version": "1.0.0"
+    }
+  ],
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "status": "running"
+  }
+}
