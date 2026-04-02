@@ -1,0 +1,109 @@
+# =========================================
+# MicroBank - Docker Compose Configuration
+# Run with: docker compose up -d
+# Stop with: docker compose down
+# =========================================
+
+services:
+  # --- DATABASE ---
+  postgres:
+    image: postgres:15-alpine              # Official PostgreSQL image (alpine = small)
+    container_name: microbank-db
+    environment:
+      POSTGRES_DB: microbank               # Create this database on first start
+      POSTGRES_USER: microbank_user        # Create this user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme123}      # From .env or default
+    ports:
+      - "5432:5432"                        # Expose for local dev tools
+    volumes:
+      - db_data:/var/lib/postgresql/data   # Persistent data storage
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql        # Run on first start
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U microbank_user -d microbank"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - microbank-network
+
+  # --- ACCOUNT SERVICE ---
+  account-service:
+    image: microbank/account-service:dev
+    build:
+      context: ./services/account-service    # Path to Dockerfile
+      dockerfile: Dockerfile
+    container_name: microbank-account
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/microbank
+      SPRING_DATASOURCE_USERNAME: microbank_user
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-changeme123}
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy            # Wait for DB to be ready
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s                       # Java apps need time to start
+    networks:
+      - microbank-network
+
+  # --- TRANSACTION SERVICE ---
+  transaction-service:
+    image: microbank/transaction-service:dev
+    build:
+      context: ./services/transaction-service
+      dockerfile: Dockerfile
+    container_name: microbank-transaction
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/microbank
+      SPRING_DATASOURCE_USERNAME: microbank_user
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-changeme123}
+      SERVER_PORT: 8081
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    networks:
+      - microbank-network
+
+  # --- NGINX REVERSE PROXY ---
+  nginx:
+    image: microbank/nginx:dev
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: microbank-nginx
+    ports:
+      - "80:80"                               # Main entry point
+    depends_on:
+      - account-service
+      - transaction-service
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/health"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+    networks:
+    - microbank-network
+
+# Named volumes - persist data across container restarts
+volumes:
+  db_data:
+    driver: local
+
+# Custom network - all services can communicate by service name
+networks:
+  microbank-network:
+    driver: bridge
