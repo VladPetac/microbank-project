@@ -11,7 +11,7 @@ WORKDIR /app
 
 # Copy the Maven config first (for better layer caching)
 # If pom.xml hasn't changed, Docker reuses this cached layer
-COPY pom.xml
+COPY pom.xml .
 
 # Download dependencies (cached if pom.xml unchanged)
 RUN mvn dependency:go-offline -B
@@ -20,7 +20,7 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 
 # Build the JAR file (skip tests for faster builds)
-RUN mvn package -DskipTests - B
+RUN mvn package -DskipTests -B
 
 # --- Stage 2: RUN ---
 # Use a minimal JRE image (no compiler, no Maven - much smaller)
