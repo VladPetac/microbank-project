@@ -74,7 +74,7 @@ package-nginx:
     # Login to GitLab Container Registry
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker build -u $CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_SHORT_SHA ./nginx
+    - docker build -t $CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_SHORT_SHA ./nginx
     - docker push $CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_SHORT_SHA
     # Also tag as "latest" for main branch
     - docker tag $CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE/nginx:latest
