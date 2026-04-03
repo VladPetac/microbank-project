@@ -41,7 +41,7 @@ build-nginx:
     - docker:24-dind                           # Docker-in-Docker (allows building images)
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
-  scripts:
+  script:
     - echo "Building Nginx image..."
     - docker build -t microbank/nginx:$CI_COMMIT_SHORT_SHA ./nginx
     - echo "Nginx image built successfully!"
