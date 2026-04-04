@@ -97,11 +97,13 @@ security-scan-nginx:
   allow_failure: true
   script:
     - docker build -t nginx-scan:local ./nginx
-    - docker pull aquasec/trivy:0.58.1
-    - docker run --rm aquasec/trivy:0.58.1 image
+    - docker save nginx-scan:local -o nginx-scan.tar
+    - docker run --rm
+      -v $(pwd):/scan
+      aquasec/trivy:0.58.1 image
       --exit-code 1
       --severity HIGH,CRITICAL
-      nginx-scan:local
+      --input /scan/nginx-scan.tar
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
 
