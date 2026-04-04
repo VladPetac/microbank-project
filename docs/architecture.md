@@ -19,3 +19,4 @@ HEAD
 # Modified by Branch A
 # Modified by Brach B
 branch-b
+# Health check endpoint added
