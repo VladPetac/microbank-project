@@ -1,6 +1,8 @@
 # MicroBank Nginx - API Gateway / Reverse Proxy
 FROM nginx:1.27-alpine
 
+RUN apk update && apk upgrade --no-cache
+
 # Remove default config
 RUN rm /etc/nginx/conf.d/default.conf
 
