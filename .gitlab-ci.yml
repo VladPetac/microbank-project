@@ -18,6 +18,7 @@ stages:
   - validate
   - build
   - test
+  - security-scan
   - package
   - deploy
 
@@ -25,6 +26,9 @@ stages:
 # Check that config files and scripts are valid
 yamllint:
   stage: validate
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_MERGE_REQUEST_ID
   image: python:3.11-slim                      # Use this Docker image for the job
   before_script:
     - pip install yamllint --quiet             # Install yamllint
@@ -36,6 +40,9 @@ yamllint:
 
 shellcheck:
   stage: validate
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_MERGE_REQUEST_ID
   image: koalaman/shellcheck-alpine:latest
   script:
     - echo "Checking Bash scripts..."
@@ -68,6 +75,8 @@ build-nginx:
 # --- TEST STAGE ---
 test-compose-config:
   stage: test
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
   image: docker:24
   services:
     - docker:24-dind
@@ -75,6 +84,25 @@ test-compose-config:
     - echo "Validating Docker Compose configuration..."
     - docker compose config                    # Validate compose file
     - echo "Docker Compose configuration is valid!"
+
+# --- SECURITY SCAN STAGE ---
+# Security scan on the Nginx image
+security-scan-nginx:
+  stage: security-scan
+  image: docker:24
+  services:
+    - docker:24-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  allow_failure: true
+  script:
+    - docker build -t nginx-scan:local ./nginx
+    - docker run --rm aquasec/trivy:latest image
+      --exit-code 1
+      --severity HIGH,CRITICAL
+      nginx-scan:local
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
 
 # --- PACKAGE STAGE ---
 # Push images to GitLab Container Registry
