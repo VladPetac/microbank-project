@@ -97,7 +97,8 @@ security-scan-nginx:
   allow_failure: true
   script:
     - docker build -t nginx-scan:local ./nginx
-    - docker run --rm aquasec/trivy:latest image
+    - docker pull aquasec/trivy:0.58.1
+    - docker run --rm aquasec/trivy:latest0.58.1 image
       --exit-code 1
       --severity HIGH,CRITICAL
       nginx-scan:local
