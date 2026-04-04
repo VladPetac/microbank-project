@@ -41,6 +41,11 @@ shellcheck:
     - echo "Checking Bash scripts..."
     - shellcheck scripts/*.sh                  # Lint all shell scripts
     - echo "All scripts passed ShellCheck!"
+  artifacts:
+    reports:
+      junit: shellcheck-report.xml             # Test report format GitLab understands
+    when: always                               # Save artifacts even if job fails
+    expire_in: 1 week                          # Auto-delete after 1 week
 
 # --- BUILD STAGE ---
 # Build Docker images
