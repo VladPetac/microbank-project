@@ -3,6 +3,16 @@
 # This file tells GitLab what to do when you push code
 # ===================================================================================
 
+# Global cache configuration
+# Caching stores downloaded dependencies between pipeline runs
+# This makes pipelines faster - don't re-download everything each time
+default:
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - .m2/repository                  # Maven dependencies (Java)
+      - node_modules/                   # Node.js dependencies (if any)
+
 # Define the stages (run in this order)
 stages:
   - validate
