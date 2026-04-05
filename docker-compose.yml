@@ -101,7 +101,7 @@ services:
       timeout: 3s
       retries: 3
     networks:
-    - microbank-network
+      - microbank-network
 
   # --- ADMINER SERVICE ---
   adminer:

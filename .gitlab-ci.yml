@@ -132,3 +132,29 @@ package-nginx:
   environment:
     name: staging
     url: https://staging.microbank.example.com
+
+# --- DEPLOY STAGE ---
+deploy-staging:
+  stage: deploy
+  script:
+    - echo "Deploying to staging environment..."
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual
+  environment:
+    name: staging
+
+promote-to-sit:
+  stage: deploy
+  image: docker:24
+  services:
+    - docker:24-dind
+  script:
+    - echo "Promoting images from dev to SIT..."
+    # In real life: ./scripts/promote-image.sh microbank/nginx dev sit
+    - echo "Promotion complete. Awaiting SIT testing approval."
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual
+  environment:
+    name: sit
