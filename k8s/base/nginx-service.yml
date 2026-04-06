@@ -1,0 +1,15 @@
+# A Service provides a stable network endpoint for pods
+# Pods are temporary (they come and go); Services are permanent
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-test-service
+  namespace: microbank-dev
+spec:
+  type: NodePort                           # Expose outside the cluster (for testing)
+  selector:
+    app: nginx-test                        # Route traffic to pods with this label
+  ports:
+    - port: 80                             # Service port
+      targetPort: 80                       # Container port
+      nodePort: 30080                      # External port (30000-32767 range)

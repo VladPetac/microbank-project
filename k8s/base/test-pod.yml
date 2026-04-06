@@ -1,0 +1,22 @@
+# A Pod is the smallest deployable unit in Kubernetes
+# This runs a simple Nginx container for testing
+apiVersion: v1                      # Kubernetes API version
+kind: Pod                           # What type of resorce
+metadata:
+  name: test-nginx                  # Name of this pod
+  namespace: microbank-dev          # Which namespace it belongs to
+  labels:
+    app: test-nginx                 # Labels are used for selection/filtering
+spec:
+  containers:
+    - name: nginx                   # Container name
+      image: nginx:alpine           # Docker image to run
+      ports:
+        - containerPort: 80         # Port the container listens on
+      resources:
+        requests:                   # Minimum resources needed
+          memory: "64Mi"
+          cpu: "100m"               # 100 millicpu = 0.1 CPU
+        limits:                     # Maximum resources allowed
+          memory: "128Mi"
+          cpu: "250m"
