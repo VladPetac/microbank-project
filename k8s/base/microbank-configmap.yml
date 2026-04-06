@@ -1,0 +1,13 @@
+# ConfigMap stores non-sensitive configuration
+# Applications read these values as environment variables
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: microbank-config
+  namespace: microbank-dev
+data:
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  DB_NAME: "microbank"
+  APP_ENV: "dev"
+  LOG_LEVEL: "DEBUG"
