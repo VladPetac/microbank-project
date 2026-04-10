@@ -127,8 +127,6 @@ package-nginx:
     - docker push $CI_REGISTRY_IMAGE/nginx:latest
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
-      when: manual                              # Requires manual click to deploy
-      allow_failure: false                      # Pipeline waits for approval
   environment:
     name: staging
     url: https://staging.microbank.example.com
@@ -155,6 +153,7 @@ promote-to-sit:
     - echo "Promotion complete. Awaiting SIT testing approval."
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
-      when: manual
+      when: manual                                   # Requires manual click to deploy
+      allow_failure: false                           # Pipeline waits for approval
   environment:
     name: sit
