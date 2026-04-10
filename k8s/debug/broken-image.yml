@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debug-image
+  namespace: microbank-dev
+spec:
+  containers:
+    - name: app
+      image: microbank/nonexistent:v999           # This image doesn't exist!
+      ports:
+        - containerPort: 8080

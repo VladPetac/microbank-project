@@ -1,0 +1,9 @@
+# Development environment overrides
+environment: dev
+logLevel: DEBUG
+
+accountService:
+  replicas: 1
+
+transactionService:
+  replicas: 1
