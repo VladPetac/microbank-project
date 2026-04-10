@@ -1,0 +1,9 @@
+# Staging environment overrides
+environment: staging
+logLevel: INFO
+
+accountService:
+  replicas: 2
+
+transactionService:
+  replicas: 2

@@ -1,0 +1,50 @@
+# Default values for MicroBank
+# Override per environment with values-<env>.yml
+
+replicaCount: 1
+
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "15-alpine"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  storage:
+    size: 1Gi
+
+accountService:
+  image:
+    repository: microbank/account-service
+    tag: "dev"
+  replicas: 1
+  port: 8080
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+transactionService:
+  image:
+    repository: microbank/transaction-service
+    tag: "dev"
+  replicas: 1
+  port: 8081
+
+nginx:
+  image:
+    repository: microbank/nginx
+    tag: "dev"
+  replicas: 1
+  port: 80
+
+environment: dev
+logLevel: DEBUG
