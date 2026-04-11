@@ -1,0 +1,54 @@
+# ===============================================================================
+# setup-devtools.yml - Installs DevOps tools on target machines
+# Run with: ansible-playbook -i ansible/inventory.yml ansible/setup-devtools.yml
+# ===============================================================================
+---
+- name: Setup DevOps tools on MicroBank servers
+  hosts: localhost                              # Which hosts from inventory to target
+  become: true                                  # Run as root (sudo)
+
+  vars:
+    required_packages:
+      - curl
+      - wget
+      - jq
+      - tree
+      - htop
+      - net-tools
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600                 # Don't update if less than 1 hour old
+
+    - name: Install required packages
+      apt:
+        name: "{{ required_packages }}"
+        state: present                         # Ensure packages are installed
+
+    - name: Create MicroBank directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - /opt/microbank
+        - /opt/microbank/configs
+        - /opt/microbank/logs
+        - /opt/microbank/backups
+
+    - name: Create MicroBank system user
+      user:
+        name: microbank
+        system: yes
+        shell: /bin/bash
+        home: /opt/microbank
+        create_home: no
+
+    - name: Set directory ownership
+      file:
+        path: /opt/microbank
+        owner: microbank
+        group: microbank
+        recurse: yes

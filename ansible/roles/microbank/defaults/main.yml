@@ -1,0 +1,9 @@
+---
+microbank_env: dev
+microbank_base_dir: /opt/microbank
+microbank_user: microbank
+microbank_db_port: 5432
+microbank_db_host: localhost
+microbank_db_name: microbank
+microbank_account_port: 8080
+microbank_transaction_port: 8081

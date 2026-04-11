@@ -1,0 +1,38 @@
+---
+- name: Deploy Nginx configuration for MicroBank
+  hosts: localhost
+  become: true
+
+  vars:
+    environment_name: "dev"
+    nginx_listen_port: 80
+    nginx_worker_connections: 512
+    microbank_services:
+      - name: account-service
+        host: localhost
+        port: 8080
+      - name: transaction-service
+        host: localhost
+        port: 8081
+
+  tasks:
+    - name: Generate Nginx config from template
+      template:
+        src: templates/nginx.conf.j2
+        dest: /opt/microbank/configs/nginx.conf
+        mode: "0644"
+      notify: Restart Nginx                # Triggers handler only if config changed
+
+    - name: Display generated config
+      command: cat /opt/microbank/configs/nginx.conf
+      register: config_output
+      changed_when: false
+
+    - name: Show config
+      debug:
+        msg: "{{ config_output.stdout_lines }}"
+
+  handlers:
+    - name: Restart Nginx
+      debug:
+        msg: "Would restart Nginx service here (not installed for demo)"
