@@ -1,0 +1,7 @@
+---
+- name: Deploy MicroBank
+  hosts: localhost
+  roles:
+    - role: microbank
+      vars:
+        microbank_dev: dev

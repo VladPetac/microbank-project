@@ -1,0 +1,6 @@
+---
+- name: Restart MicroBank services
+  service:
+    name: docker
+    state: restarted
+  become: true

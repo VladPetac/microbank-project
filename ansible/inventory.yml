@@ -1,0 +1,15 @@
+# Ansible Inventory - lists all machines we manage
+all:
+  hosts:
+    localhost:
+      ansible_connection: local             # Don't SSH, just run locally
+  children:
+    dev:
+      hosts:
+        localhost:
+    # In production, you'd have real servers here:
+    # staging:
+    #   hosts:
+    #     staging-server-1:
+    #       ansible_host: 10.0.1.10
+    #       ansible_user: deploy
