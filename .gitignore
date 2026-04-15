@@ -20,3 +20,11 @@ Thumbs.db
 *.swp
 kubectl
 minikube-linux-amd64
+
+# Secrets and credentials
+*.pem
+*.key
+
+# Logs
+*.log
+logs/
