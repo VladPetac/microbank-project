@@ -71,7 +71,7 @@ echo " GitHub PR:"
 echo " https://github.com/VladPetac/microbank-project/compare/$CURRENT_BRANCH"
 echo ""
 echo " GitLab MR:"
-echo " https://gitlab.com/VladPetac/microbank-project/-/merge_requests/new?https://gitlab.com/VladPetac/microbank-project/-/merge_requests/new?merge_request[source_branch]=$CURRENT_BRANCH"
+echo " https://gitlab.com/VladPetac/microbank-project/-/merge_requests/new?merge_request[source_branch]=$CURRENT_BRANCH"
 echo ""
 echo "============================================================================================================================================================================================="
 
