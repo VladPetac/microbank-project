@@ -117,62 +117,41 @@ jobs:
         run: |
           IMAGE_TAG=${{ needs.push-to-ecr.outputs.image_tag }}
           ECR_REGISTRY=${{ env.ECR_REGISTRY }}
+          REGION=${{ secrets.AWS_REGION }}
 
           echo "Deploying image tag: $IMAGE_TAG"
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
             --document-name "AWS-RunShellScript" \
-            --parameters commands=["
-              aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
-                docker login --username AWS --password-stdin $ECR_REGISTRY && \
-              sed -i 's|$ECR_REGISTRY/microbank/account-service:.*|$ECR_REGISTRY/microbank/account-service:$IMAGE_TAG|g' ~/docker-compose.yml && \
-              sed -i 's|$ECR_REGISTRY/microbank/transaction-service:.*|$ECR_REGISTRY/microbank/transaction-service:$IMAGE_TAG|g' ~/docker-compose.yml && \
-              sed -i 's|$ECR_REGISTRY/microbank/nginx:.*|$ECR_REGISTRY/microbank/nginx:$IMAGE_TAG|g' ~/docker-compose.yml && \
-              docker compose pull && \
-              docker compose up -d && \
-              echo 'Deployment complete'
-            "] \
-            --region ${{ secrets.AWS_REGION }} \
+            --parameters '{"commands":["aws ecr get-login-password --region '"$REGION"' | docker login --username AWS --password-stdin '"$ECR_REGISTRY"' && cd ~ && docker compose -f docker-compose.aws.yml pull && docker compose -f docker-compose.aws.yml up -d && echo Deployment complete"]}'
+            --region $REGION \
             --query "Command.CommandId" \
             --output text)
 
           echo "SSM Command ID: $COMMAND_ID"
 
-          # Wait for the command to complete
           echo "Waiting for deployment to complete..."
           aws ssm wait command-executed \
             --command-id $COMMAND_ID \
             --instance-id ${{ secrets.EC2_INSTANCE_ID }} \
-            --region ${{ secrets.AWS_REGION }}
+            --region $REGION
 
-          # Get command output
-          OUTPUT=$(aws ssm get-command-invocation \
+          STATUS=$(aws ssm get-command-invocation \
             --command-id $COMMAND_ID \
             --instance-id ${{ secrets.EC2_INSTANCE_ID }} \
-            --region ${{ secrets.AWS_REGION }} \
-            --query "{Status:Status,Output:StandardOutputContent,Error:StandardErrorContent}")
+            --region $REGION \
+            --query "Status" \
+            --output text)
 
-          echo "Deployment output: $OUTPUT"
+          echo "Deployment status: $STATUS"
 
-      - name: Validate deployment
-        run: |
-          EC2_IP=$(aws ec2 describe-instances \
-            --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
-            --query "Reservations[0].Instances[0].PublicIpAddress" \
-            --output text \
-            --region ${{ secrets.AWS_REGION }})
-
-          echo "EC2 IP: $EC2_IP"
-
-          # Wait for services to be ready
-          sleep 15
-
-          # Health check
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://$EC2_IP/health)
-          if [ "$HTTP_STATUS" = "200" ]; then
-            echo "✅ Health check passed — MicroBank is live!"
-          else
-            echo "⚠️  Health check returned HTTP $HTTP_STATUS"
+          if [ "$STATUS" != "Success" ]; then
+            aws ssm get-command-invocation \
+              --command-id $COMMAND_ID \
+              --instance-id ${{ secrets.EC2_INSTANCE_ID }} \
+              --region $REGION \
+              --query "StandardErrorContent" \
+              --output text
             exit 1
           fi

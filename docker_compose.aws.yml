@@ -1,0 +1,75 @@
+# =========================================
+# MicroBank - AWS Docker Compose Configuration
+# Used on EC2 — pulls images from ECR
+# Run with: docker compose -f docker-compose.aws.yml up -d
+# Stop with: docker compose -f docker-compose.aws.yml down
+# =========================================
+# NOTE: No postgres service here — using AWS RDS instead
+# NOTE: No build contexts — images are pre-built and stored in ECR
+# =========================================
+
+services:
+  # --- ACCOUNT SERVICE ---
+  account-service:
+    image: ${ECR_REGISTRY}/microbank/account-service:latest
+    container_name: microbank-account
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${RDS_HOST}:5432/microbank
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-microbank_user}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    networks:
+      - microbank-network
+
+  # --- TRANSACTION SERVICE ---
+  transaction-service:
+    image: ${ECR_REGISTRY}/microbank/transaction-service:latest
+    container_name: microbank-transaction
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${RDS_HOST}:5432/microbank
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-microbank_user}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SERVER_PORT: 8081
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    networks:
+      - microbank-network
+
+  # --- NGINX REVERSE PROXY ---
+  nginx:
+    image: ${ECR_REGISTRY}/microbank/nginx:latest
+    container_name: microbank-nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - account-service
+      - transaction-service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost/health"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+    networks:
+      - microbank-network
+
+# Custom network
+networks:
+  microbank-network:
+    driver: bridge
