@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   parameter-store:
-    DB_HOST: /microbank/db/host
+    DB_HOST: /microbank/rds/endpoint
     ECR_REGISTRY: /microbank/ecr/registry
 
 phases:
@@ -26,7 +26,10 @@ phases:
       - docker push $ECR_REGISTRY/microbank/nginx:$IMAGE_TAG
       - docker push $ECR_REGISTRY/microbank/account-service:$IMAGE_TAG
       - docker push $ECR_REGISTRY/microbank/transaction-service:$IMAGE_TAG
-      - echo Build completed on $(date)
+      - echo Deploying to EC2 via SSM...
+      - INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=microbank-ec2" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].InstanceId" --output text --region eu-central-1)
+      - aws ssm send-command --instance-ids $INSTANCE_ID --document-name "AWS-RunShellScript" --parameters commands=["aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $ECR_REGISTRY && cd ~ && IMAGE_TAG=$IMAGE_TAG docker compose pull && docker compose up -d"] --region eu-central-1
+      - echo Build and deploy completed on $(date)
       - echo Image tag is $IMAGE_TAG
 
 artifacts:
