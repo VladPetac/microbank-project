@@ -80,6 +80,9 @@ jobs:
           docker build -t $ECR_REGISTRY/microbank/account-service:${{ steps.set-tag.outputs.image_tag }} \
             ./services/account-service/
           docker push $ECR_REGISTRY/microbank/account-service:${{ steps.set-tag.outputs.image_tag }}
+          docker tag $ECR_REGISTRY/microbank/account-service:${{ steps.set-tag.outputs.image_tag }} \
+            $ECR_REGISTRY/microbank/account-service:latest
+          docker push $ECR_REGISTRY/microbank/account-service:latest
           echo "✅ account-service pushed to ECR"
 
       - name: Build and push transaction-service
@@ -87,6 +90,9 @@ jobs:
           docker build -t $ECR_REGISTRY/microbank/transaction-service:${{ steps.set-tag.outputs.image_tag }} \
             ./services/transaction-service/
           docker push $ECR_REGISTRY/microbank/transaction-service:${{ steps.set-tag.outputs.image_tag }}
+          docker tag $ECR_REGISTRY/microbank/transaction-service:${{ steps.set-tag.outputs.image_tag }} \
+            $ECR_REGISTRY/microbank/transaction-service:latest
+          docker push $ECR_REGISTRY/microbank/transaction-service:latest
           echo "✅ transaction-service pushed to ECR"
 
       - name: Build and push nginx
@@ -94,6 +100,9 @@ jobs:
           docker build -t $ECR_REGISTRY/microbank/nginx:${{ steps.set-tag.outputs.image_tag }} \
             ./nginx/
           docker push $ECR_REGISTRY/microbank/nginx:${{ steps.set-tag.outputs.image_tag }}
+          docker tag $ECR_REGISTRY/microbank/nginx:${{ steps.set-tag.outputs.image_tag }} \
+            $ECR_REGISTRY/microbank/nginx:latest
+          docker push $ECR_REGISTRY/microbank/nginx:latest
           echo "✅ nginx pushed to ECR"
 
   # ===========================================================================
