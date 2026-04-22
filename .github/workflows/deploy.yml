@@ -147,12 +147,13 @@ jobs:
 
           echo "SSM Command ID: $COMMAND_ID"
 
-          # Wait for the command to complete (up to 5 minutes)
+          # Wait for the command to complete (up to 10 minutes)
           echo "Waiting for deployment to complete..."
           aws ssm wait command-executed \
             --command-id "$COMMAND_ID" \
             --instance-id "$INSTANCE_ID" \
-            --region "$REGION"
+            --region "$REGION" \
+            --cli-read-timeout 600
 
           # Get command output
           OUTPUT=$(aws ssm get-command-invocation \
